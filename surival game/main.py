@@ -104,7 +104,8 @@ click_sound.set_volume(0.5)  # Adjust as needed
 eat_sound = pygame.mixer.Sound("surival game/mus/eat.mp3")
 eat_sound.set_volume(0.5)  # Adjust volume as needed
 
-
+levelup_sound = pygame.mixer.Sound("surival game/mus/levelUp.mp3")
+levelup_sound.set_volume(0.5) 
 
 
 # At the top of your file, add this:
@@ -238,8 +239,10 @@ def draw_hunger_bar():
     hunger_text = pixel_font.render(f"Hunger: {hunger}%", True, BLACK if hunger > 50 else WHITE)
     screen.blit(hunger_text, (10 + 100 - hunger_text.get_width() // 2, 40))
 
-def draw_text(text, x, y, color=WHITE):
+def draw_text(text, x, y, color=WHITE, center=False):
     rendered = pixel_font.render(text, True, color)
+    if center:
+        x -= rendered.get_width() // 2
     screen.blit(rendered, (x, y))
 
 def show_menu():
@@ -251,24 +254,24 @@ def show_menu():
 
     # Start Button
     pygame.draw.rect(screen, GREEN if start_rect.collidepoint(mouse_pos) else WHITE, start_rect, border_radius=8)
-    draw_text("Start", WIDTH//2 - 30, HEIGHT//2 - 20, BLACK)
+    draw_text("Start", WIDTH//2, HEIGHT//2 - 20, BLACK, center=True)
 
     # Controls Button
     pygame.draw.rect(screen, ORANGE if controls_rect.collidepoint(mouse_pos) else WHITE, controls_rect, border_radius=8)
-    draw_text("Controls", WIDTH//2 - 50, HEIGHT//2 + 40, BLACK)
+    draw_text("Controls", WIDTH//2, HEIGHT//2 + 40, BLACK, center=True)
 
     # Quit Button
     pygame.draw.rect(screen, RED if quit_rect.collidepoint(mouse_pos) else WHITE, quit_rect, border_radius=8)
-    draw_text("Quit", WIDTH//2 - 30, HEIGHT//2 + 100, BLACK)
+    draw_text("Quit", WIDTH//2, HEIGHT//2 + 100, BLACK, center=True)
 
     pygame.display.flip()
 
 def show_game_over():
     screen.fill((135, 206, 235) if is_daytime else (20, 20, 50))
     if has_won:
-        draw_text("You Survived 7 Days! You Win!", WIDTH//2 - 200, HEIGHT//2 - 120, YELLOW)
+        draw_text("You Survived 7 Days! You Win!", WIDTH//2 - 200, HEIGHT//2 - 120, YELLOW, center=True)
     else:
-        draw_text("Game Over!", WIDTH//2 - 100, HEIGHT//2 - 120, RED)
+        draw_text("Game Over!", WIDTH//2 - 100, HEIGHT//2 - 120, RED, center=True)
 
 
     mouse_pos = pygame.mouse.get_pos()
@@ -277,19 +280,19 @@ def show_game_over():
     # Restart Button
     restart_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 - 60, 200, 50)
     pygame.draw.rect(screen, GREEN if restart_rect.collidepoint(mouse_pos) else WHITE, restart_rect, border_radius=8)
-    draw_text("Restart", WIDTH//2 - 50, HEIGHT//2 - 50, BLACK)
+    draw_text("Restart", WIDTH//2 - 50, HEIGHT//2 - 50, BLACK, center=True)
 
     # Main Menu Button
     menu_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 10, 200, 50)
     pygame.draw.rect(screen, ORANGE if menu_rect.collidepoint(mouse_pos) else WHITE, menu_rect, border_radius=8)
-    draw_text("Main Menu", WIDTH//2 - 60, HEIGHT//2 + 20, BLACK)
+    draw_text("Main Menu", WIDTH//2 - 60, HEIGHT//2 + 20, BLACK, center=True)
 
     
 
     # Quit Button
     quit_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 80, 200, 50)
     pygame.draw.rect(screen, RED if quit_rect.collidepoint(mouse_pos) else WHITE, quit_rect, border_radius=8)
-    draw_text("Quit", WIDTH//2 - 30, HEIGHT//2 + 90, BLACK)
+    draw_text("Quit", WIDTH//2 - 30, HEIGHT//2 + 90, BLACK, center=True)
 
     if mouse_click[0]:
         global game_state
@@ -411,7 +414,7 @@ while running:
     elif game_state == CONTROLS:
         screen.fill(BLACK)
         draw_controls()
-        draw_text("Press ESC to return to menu", WIDTH//2 - 150, HEIGHT - 50, GRAY)
+        draw_text("Press ESC to return to menu", WIDTH//2 - 150, HEIGHT - 50, GRAY, center=True)
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -635,6 +638,7 @@ while running:
                     if exp % 100 == 0:
                         level += 1
                         level_up_flash_timer = 60
+                        levelup_sound.play()    
                     break
 
 
@@ -654,7 +658,7 @@ while running:
             for tree in trees:
                 screen.blit(tree_image, tree.topleft)
                 if player.colliderect(tree):
-                    draw_text("Press E to collect wood", player.x - 20, player.y - 30, YELLOW)
+                    draw_text("Press E to collect wood", player.x - 20, player.y - 30, YELLOW,  center=False)
         # Draw walls
         for wall in walls:
             screen.blit(wall_image, wall.topleft)
