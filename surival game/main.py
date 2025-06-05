@@ -13,6 +13,8 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
 small_font = pygame.font.SysFont(None, 28)  # Smaller font
 
+
+
 menu_background = pygame.image.load("surival game/img/menuB.png").convert()
 menu_background = pygame.transform.scale(menu_background, (WIDTH, HEIGHT))
 
@@ -189,6 +191,38 @@ class Cloud:
 # 初始化多個雲朵
 clouds = [Cloud() for _ in range(5)]
 
+class Petal:
+    def __init__(self):
+        self.original_image = pygame.image.load("surival game/img/petal.png").convert_alpha()
+        self.scale = random.uniform(0.3, 0.8)
+        self.image = pygame.transform.scale(
+            self.original_image, (int(40 * self.scale), int(40 * self.scale))
+        )
+        self.x = random.randint(0, WIDTH)
+        self.y = random.randint(-HEIGHT, 0)
+        self.speed_y = random.uniform(0.5, 1.5)*5
+        self.drift = random.uniform(-0.2, 0.2)
+
+    def update(self):
+        self.y += self.speed_y
+        self.x += self.drift
+        if self.y > HEIGHT:
+            self.reset()
+
+    def reset(self):
+        self.scale = random.uniform(0.3, 0.8)
+        self.image = pygame.transform.scale(
+            self.original_image, (int(40 * self.scale), int(40 * self.scale))
+        )
+        self.x = random.randint(0, WIDTH)
+        self.y = random.randint(-100, -40)
+        self.speed_y = random.uniform(0.5, 1.5)
+        self.drift = random.uniform(-0.3, 0.3)
+
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+petals = [Petal() for _ in range(20)]
+
 def add_meat():
     roll = random.random()
     if roll <= 0.1:
@@ -297,14 +331,16 @@ def show_menu():
     # 背景動畫（飄動的雲）
     season = get_season(day_count)
     screen.blit(season_backgrounds[season], (0, 0))
-    for cloud in clouds:
-        cloud.update()
-        cloud.draw(screen)
+    for petal in petals:
+        petal.update()
+        petal.draw(screen)
+        
 
     cloud_img = pygame.image.load("surival game/img/cloud.png").convert_alpha()
     cloud_img = pygame.transform.scale(cloud_img, (100, 60))
     screen.blit(cloud_img, (cloud_x, 50))
     cloud_x = (cloud_x + 1) % WIDTH
+
     
     # 主角站位動畫
     screen.blit(player_images["down"], (WIDTH//2 - 200, HEIGHT//2 - 40))
