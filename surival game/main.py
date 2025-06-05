@@ -321,6 +321,7 @@ menu_tip = random.choice([
 ])
 menu_music_playing = False
 
+
 def show_menu():
     global cloud_x, menu_music_playing
 
@@ -540,15 +541,56 @@ for enemy in enemies[:]:
 
 
 def reset_game():
-    global player, health, hunger, enemies, bullets, spawn_timer, inventory, inventory_open, hunger_timer, player_direction, show_controls, exp, level, level_up_flash_timer
+    global player, health, hunger, enemies, bullets, spawn_timer
+    global inventory, inventory_open, hunger_timer, player_direction, show_controls
+    global exp, level, level_up_flash_timer, day_count, day_timer, is_daytime
+    global wall_lifetime, walls, has_won, current_music, music_time, last_is_daytime
+
+    # Player and stats
     player = pygame.Rect(WIDTH//2, HEIGHT//2, 40, 40)
     health = 100
     hunger = 100
+    exp = 0
+    level = 1
+    level_up_flash_timer = 0
+    hunger_timer = 0
+    player_direction = (1, 0)
+
+    # Inventory
+    inventory = {
+        "rotten_meat": 0,
+        "normal_meat": 0,
+        "rare_meat": 0,
+        "super_meat": 0,
+        "wood": 0
+    }
+    inventory_open = False
+    show_controls = False
+
+    # Game logic
     enemies.clear()
     bullets.clear()
-    inventory = {"rotten_meat": 0, "normal_meat": 0, "rare_meat": 0, "super_meat": 0, "wood": 0}
-    inventory_open = False
+    walls.clear()
+    wall_lifetime = 0
     spawn_timer = 0
+
+    # Day/Night reset
+    day_count = 0
+    day_timer = 0
+    is_daytime = True
+    last_is_daytime = 0
+    has_won = False
+
+    # Music state
+    current_music = None
+    music_time = {"day": 0, "night": 0}
+
+    # Reset trees
+    trees.clear()
+    for _ in range(max_trees):
+        tree = pygame.Rect(random.randint(50, WIDTH - 100), random.randint(50, HEIGHT - 100), 30, 50)
+        trees.append(tree)
+
 
 day_length = 600  # frames (~10 seconds)
 day_timer = 0
