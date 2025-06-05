@@ -122,6 +122,7 @@ has_won = False
 
 
 MENU, PLAYING, GAME_OVER, CONTROLS = 0, 1, 2, 3
+LOADING = 4
 game_state = MENU
 start_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 - 30, 200, 50)
 controls_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 30, 200, 50)
@@ -245,34 +246,80 @@ def draw_text(text, x, y, color=WHITE, center=False):
         x -= rendered.get_width() // 2
     screen.blit(rendered, (x, y))
 
-def show_menu():
-    screen.fill((135, 206, 235) if is_daytime else (20, 20, 50))
-    pygame.draw.rect(screen, GRAY, (WIDTH//2 - 150, HEIGHT//2 - 100, 300, 220), border_radius=12)
-    draw_text("2D Survival Game", WIDTH//2 - 110, HEIGHT//2 - 80, YELLOW)
+import math
 
+# 選單角色位置與背景動畫參數
+cloud_x = 0
+menu_tip = random.choice([
+    "Tip: Press F to build walls during the day.",
+    "Hint: Rotten meat is not healthy.",
+    "Advice: Survive for 7 days to win!"
+])
+menu_music_playing = False
+
+def show_menu():
+    global cloud_x, menu_music_playing
+
+    # 播放背景音樂（只播放一次）
+    if not menu_music_playing:
+        pygame.mixer.music.load("surival game/mus/menu.mp3")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+        menu_music_playing = True
+
+    # 背景動畫（飄動的雲）
+    season = get_season(day_count)
+    screen.blit(season_backgrounds[season], (0, 0))
+    cloud_img = pygame.image.load("surival game/img/cloud.png").convert_alpha()
+    cloud_img = pygame.transform.scale(cloud_img, (100, 60))
+    screen.blit(cloud_img, (cloud_x, 50))
+    cloud_x = (cloud_x + 1) % WIDTH
+    
+    # 主角站位動畫
+    screen.blit(player_images["down"], (WIDTH//2 - 200, HEIGHT//2 - 40))
+
+    # 浮動標題動畫
+    t = pygame.time.get_ticks() / 500  # time-based offset
+    offset = int(10 * math.sin(t))
+    draw_text("7 Days to surive", WIDTH//2, HEIGHT//2 - 120 + offset, YELLOW, center=True)
+
+    # 滑鼠座標
     mouse_pos = pygame.mouse.get_pos()
 
+    # 按鈕區域
+    pygame.draw.rect(screen, GRAY, (WIDTH//2 - 150, HEIGHT//2 - 80, 300, 220), border_radius=12)
+
     # Start Button
-    pygame.draw.rect(screen, GREEN if start_rect.collidepoint(mouse_pos) else WHITE, start_rect, border_radius=8)
+    start_color = GREEN if start_rect.collidepoint(mouse_pos) else WHITE
+    pygame.draw.rect(screen, start_color, start_rect, border_radius=8)
     draw_text("Start", WIDTH//2, HEIGHT//2 - 20, BLACK, center=True)
 
     # Controls Button
-    pygame.draw.rect(screen, ORANGE if controls_rect.collidepoint(mouse_pos) else WHITE, controls_rect, border_radius=8)
+    controls_color = ORANGE if controls_rect.collidepoint(mouse_pos) else WHITE
+    pygame.draw.rect(screen, controls_color, controls_rect, border_radius=8)
     draw_text("Controls", WIDTH//2, HEIGHT//2 + 40, BLACK, center=True)
 
     # Quit Button
-    pygame.draw.rect(screen, RED if quit_rect.collidepoint(mouse_pos) else WHITE, quit_rect, border_radius=8)
+    quit_color = RED if quit_rect.collidepoint(mouse_pos) else WHITE
+    pygame.draw.rect(screen, quit_color, quit_rect, border_radius=8)
     draw_text("Quit", WIDTH//2, HEIGHT//2 + 100, BLACK, center=True)
+
+    # 隨機提示
+    draw_text(menu_tip, WIDTH//2, HEIGHT - 40, GRAY, center=True)
 
     pygame.display.flip()
 
 def show_game_over():
     screen.fill((135, 206, 235) if is_daytime else (20, 20, 50))
     if has_won:
-        draw_text("You Survived 7 Days! You Win!", WIDTH//2 - 200, HEIGHT//2 - 120, YELLOW, center=True)
+        draw_text("You Survived 7 Days! You Win!", WIDTH//2 - 200, HEIGHT//2 - 120, YELLOW, center=False)
     else:
-        draw_text("Game Over!", WIDTH//2 - 100, HEIGHT//2 - 120, RED, center=True)
+        draw_text("Game Over!", WIDTH//2 - 100, HEIGHT//2 - 120, RED, center=False)
 
+def show_loading_screen():
+    screen.fill(BLACK)
+    draw_text("Loading...", WIDTH // 2, HEIGHT // 2, YELLOW, center=True)
+    pygame.display.flip()
 
     mouse_pos = pygame.mouse.get_pos()
     mouse_click = pygame.mouse.get_pressed()
@@ -393,8 +440,8 @@ while running:
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if start_rect.collidepoint(event.pos):
                     click_sound.play()
-                    game_state = PLAYING
-                    reset_game()
+                    game_state = LOADING
+                    loading_start_time = pygame.time.get_ticks() 
                 elif controls_rect.collidepoint(event.pos):
                     game_state = CONTROLS
                     click_sound.play()
@@ -429,12 +476,22 @@ while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     game_state = PLAYING
                     reset_game()
                 elif event.key == pygame.K_ESCAPE:
                     running = False
+    elif game_state == LOADING:
+        show_loading_screen()
+        menu_music_playing = False  # Stop menu music if it was playing
+                
+                # Wait for 1.5 seconds (1500 ms)
+        if pygame.time.get_ticks() - loading_start_time > 5000:  # Adjust the time as needed
+                reset_game()
+                game_state = PLAYING
 
     elif game_state == PLAYING:
 
