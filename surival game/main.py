@@ -13,6 +13,9 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
 small_font = pygame.font.SysFont(None, 28)  # Smaller font
 
+menu_background = pygame.image.load("surival game/img/menuB.png").convert()
+menu_background = pygame.transform.scale(menu_background, (WIDTH, HEIGHT))
+
 # player image
 player_images = {
     
@@ -162,6 +165,29 @@ show_controls = False
 
 # Load meat icons (place actual image files in the same folder or adjust path)
 
+class Cloud:
+    def __init__(self):
+        self.image = pygame.image.load("surival game/img/cloud.png").convert_alpha()
+        self.scale = random.uniform(0.5, 1.5)
+        self.image = pygame.transform.scale(self.image, (int(100 * self.scale), int(60 * self.scale)))
+        self.x = random.randint(-200, WIDTH)
+        self.y = random.randint(30, 200)
+        self.speed = random.uniform(0.2, 1.0)
+
+    def update(self):
+        self.x += self.speed
+        if self.x > WIDTH + 100:
+            self.x = -200
+            self.y = random.randint(30, 200)
+            self.speed = random.uniform(0.2, 1.0)
+            self.scale = random.uniform(0.5, 1.5)
+            self.image = pygame.transform.scale(pygame.image.load("surival game/img/cloud.png").convert_alpha(), (int(100 * self.scale), int(60 * self.scale)))
+
+    def draw(self, surface):
+        surface.blit(self.image, (self.x, self.y))
+
+# 初始化多個雲朵
+clouds = [Cloud() for _ in range(5)]
 
 def add_meat():
     roll = random.random()
@@ -260,6 +286,7 @@ menu_music_playing = False
 def show_menu():
     global cloud_x, menu_music_playing
 
+
     # 播放背景音樂（只播放一次）
     if not menu_music_playing:
         pygame.mixer.music.load("surival game/mus/menu.mp3")
@@ -270,6 +297,10 @@ def show_menu():
     # 背景動畫（飄動的雲）
     season = get_season(day_count)
     screen.blit(season_backgrounds[season], (0, 0))
+    for cloud in clouds:
+        cloud.update()
+        cloud.draw(screen)
+
     cloud_img = pygame.image.load("surival game/img/cloud.png").convert_alpha()
     cloud_img = pygame.transform.scale(cloud_img, (100, 60))
     screen.blit(cloud_img, (cloud_x, 50))
