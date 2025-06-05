@@ -16,26 +16,26 @@ small_font = pygame.font.SysFont(None, 28)  # Smaller font
 # player image
 player_images = {
     
-    "up": pygame.image.load("img/archer_front.png").convert_alpha(),
-    "left": pygame.image.load("img/archer_left.png").convert_alpha(),
-    "down": pygame.image.load("img/archer_back.png").convert_alpha(),
-    "right": pygame.image.load("img/archer_right.png").convert_alpha()
+    "up": pygame.image.load("surival game/img/archer_front.png").convert_alpha(),
+    "left": pygame.image.load("surival game/img/archer_left.png").convert_alpha(),
+    "down": pygame.image.load("surival game/img/archer_back.png").convert_alpha(),
+    "right": pygame.image.load("surival game/img/archer_right.png").convert_alpha()
 }
 
 arrow_images = {
-    "up": pygame.image.load("img/arrowUp.png").convert_alpha(),
-    "down": pygame.image.load("img/arrowDown.png").convert_alpha(),
-    "left": pygame.image.load("img/arrow.png").convert_alpha(),
-    "right": pygame.image.load("img/arrowRight.png").convert_alpha()
+    "up": pygame.image.load("surival game/img/arrowUp.png").convert_alpha(),
+    "down": pygame.image.load("surival game/img/arrowDown.png").convert_alpha(),
+    "left": pygame.image.load("surival game/img/arrow.png").convert_alpha(),
+    "right": pygame.image.load("surival game/img/arrowRight.png").convert_alpha()
 }
 
 # Resize if needed
 for key in arrow_images:
-    arrow_images[key] = pygame.transform.scale(arrow_images[key], (20, 20))
+    arrow_images[key] = pygame.transform.scale(arrow_images[key], (40, 40))
 
-tree_image = pygame.image.load("img/tree.png").convert_alpha()
+tree_image = pygame.image.load("surival game/img/tree.png").convert_alpha()
 tree_image = pygame.transform.scale(tree_image, (30, 50))
-wall_image = pygame.image.load("img/wall.png").convert_alpha()
+wall_image = pygame.image.load("surival game/img/wall.png").convert_alpha()
 wall_image = pygame.transform.scale(wall_image, (40, 40))
 # scale them all
 for k in player_images:
@@ -50,15 +50,15 @@ def load_slime_frames(sheet, row=0, col_start=0, col_end=4, frame_width=32, fram
         frames.append(pygame.transform.scale(frame, (30, 30)))  # Match enemy size
     return frames
 
-slime_sprite_sheet = pygame.image.load("img/Enemy.png").convert_alpha()
+slime_sprite_sheet = pygame.image.load("surival game/img/Enemy.png").convert_alpha()
 slime_frames = load_slime_frames(slime_sprite_sheet)
 
 
 season_backgrounds = {
-    "spring": pygame.image.load("img/day1.png").convert(),
-    "summer": pygame.image.load("img/day2.png").convert(),
-    "fall": pygame.image.load("img/day3.png").convert(),
-    "winter": pygame.image.load("img/day4.png").convert()
+    "spring": pygame.image.load("surival game/img/day1.png").convert(),
+    "summer": pygame.image.load("surival game/img/day2.png").convert(),
+    "fall": pygame.image.load("surival game/img/day3.png").convert(),
+    "winter": pygame.image.load("surival game/img/day4.png").convert()
 }
 # Optionally scale to fit screen size
 for key in season_backgrounds:
@@ -72,11 +72,11 @@ def get_season(day):
     return season_cycle[index]
 
 meat_icons = {
-    "rotten_meat": pygame.image.load("img/rottenM.jpg").convert_alpha(),
-    "normal_meat": pygame.image.load("img/cookM.jpg").convert_alpha(),
-    "rare_meat": pygame.image.load("img/rareM.jpg").convert_alpha(),
-    "super_meat": pygame.image.load("img/superM.jpg").convert_alpha(),
-    "wood": pygame.image.load("img/wood.jpg").convert_alpha()
+    "rotten_meat": pygame.image.load("surival game/img/rottenM.jpg").convert_alpha(),
+    "normal_meat": pygame.image.load("surival game/img/cookM.jpg").convert_alpha(),
+    "rare_meat": pygame.image.load("surival game/img/rareM.jpg").convert_alpha(),
+    "super_meat": pygame.image.load("surival game/img/superM.jpg").convert_alpha(),
+    "wood": pygame.image.load("surival game/img/wood.jpg").convert_alpha()
 }
 
 # Resize them to fit inventory nicely
@@ -84,13 +84,13 @@ for key in meat_icons:
     meat_icons[key] = pygame.transform.scale(meat_icons[key], (30, 30))
 
 
-shoot_sound = pygame.mixer.Sound("mus/shoot.mp3")
+shoot_sound = pygame.mixer.Sound("surival game/mus/shoot.mp3")
 shoot_sound.set_volume(0.5)
-wood_collect_sound = pygame.mixer.Sound("mus/collectWood.mp3")
+wood_collect_sound = pygame.mixer.Sound("surival game/mus/collectWood.mp3")
 wood_collect_sound.set_volume(0.5)  # Optional volume setting
-click_sound = pygame.mixer.Sound("mus/click.mp3")
+click_sound = pygame.mixer.Sound("surival game/mus/click.mp3")
 click_sound.set_volume(0.5)  # Adjust as needed
-eat_sound = pygame.mixer.Sound("mus/eat.mp3")
+eat_sound = pygame.mixer.Sound("surival game/mus/eat.mp3")
 eat_sound.set_volume(0.5)  # Adjust volume as needed
 
 
@@ -127,7 +127,7 @@ walls = []  # List of wall rectangles
 wall_size = 40
 wall_lifetime = 0  # How many cycles walls have existed
 
-pixel_font = pygame.font.Font("PressStart2P-Regular.ttf", 20)  # Adjust path and size
+pixel_font = pygame.font.Font("surival game/PressStart2P-Regular.ttf", 20)  # Adjust path and size
 
 
 health = 100
@@ -454,12 +454,12 @@ while running:
             music_time["night"] += 1
 
         if is_daytime and current_music != "day":
-            pygame.mixer.music.load("mus/dayBGM.mp3")
+            pygame.mixer.music.load("surival game/mus/dayBGM.mp3")
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1, music_time["day"] / 60)
             current_music = "day"
         elif not is_daytime and current_music != "night":
-            pygame.mixer.music.load("mus/Pixel Night Fight.mp3")
+            pygame.mixer.music.load("surival game/mus/Pixel Night Fight.mp3")
             pygame.mixer.music.set_volume(0.5)
             pygame.mixer.music.play(-1, music_time["night"] / 60)
             current_music = "night"
@@ -543,10 +543,12 @@ while running:
 
 
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                arrow_size = 40  # match the arrow image size
+
                 bullet = {
-                    "rect": pygame.Rect(player.centerx - 5, player.centery - 5, 10, 10),
+                    "rect": pygame.Rect(player.centerx - arrow_size // 2, player.centery - arrow_size // 2, arrow_size, arrow_size),
                     "dir": player_direction,
-                    "facing": facing  # Save string direction like "up", "down", etc.
+                    "facing": facing
                 }
                 bullets.append(bullet)
                 shoot_sound.play()
