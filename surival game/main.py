@@ -71,6 +71,17 @@ def get_season(day):
     index = (day // 2) % 4
     return season_cycle[index]
 
+night_backgrounds = {
+    "spring": pygame.image.load("surival game/img/background 1.png").convert(),
+    "summer": pygame.image.load("surival game/img/background 2.png").convert(),
+    "fall": pygame.image.load("surival game/img/background 3.png").convert(),
+    "winter": pygame.image.load("surival game/img/background 4.png").convert()
+}
+
+# Resize to screen size
+for key in night_backgrounds:
+    night_backgrounds[key] = pygame.transform.scale(night_backgrounds[key], (WIDTH, HEIGHT))
+
 meat_icons = {
     "rotten_meat": pygame.image.load("surival game/img/rottenM.jpg").convert_alpha(),
     "normal_meat": pygame.image.load("surival game/img/cookM.jpg").convert_alpha(),
@@ -471,7 +482,7 @@ while running:
             season = get_season(day_count)
             screen.blit(season_backgrounds[season], (0, 0))
         else:
-            screen.fill((20, 20, 50))  # or load a night background if you have one
+            screen.blit(night_backgrounds[season], (0, 0))
 
 
 
@@ -628,7 +639,9 @@ while running:
 
 
         if level_up_flash_timer > 0:
-            pygame.draw.rect(screen, (255, 255, 255), player)
+            flash_text = pixel_font.render("LEVEL UP!", True, (255, 255, 0))
+            screen.blit(flash_text, (player.x - 20, player.y - 30))
+            screen.blit(player_images[facing], player.topleft)
             level_up_flash_timer -= 1
         else:
             screen.blit(player_images[facing], player.topleft)
