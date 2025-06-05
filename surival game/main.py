@@ -112,6 +112,10 @@ eat_sound.set_volume(0.5)  # Adjust volume as needed
 levelup_sound = pygame.mixer.Sound("surival game/mus/levelUp.mp3")
 levelup_sound.set_volume(0.5) 
 
+walk_sound = pygame.mixer.Sound("surival game/mus/walk.mp3")  # 請使用你的步行音效路徑
+walk_sound.set_volume(0.3)  # 可調整音量
+walk_channel = pygame.mixer.Channel(1) 
+
 
 # At the top of your file, add this:
 current_music = None
@@ -187,7 +191,7 @@ class Cloud:
 
     def draw(self, surface):
         surface.blit(self.image, (self.x, self.y))
-
+        
 # 初始化多個雲朵
 clouds = [Cloud() for _ in range(5)]
 
@@ -388,38 +392,8 @@ def show_loading_screen():
     draw_text("Loading...", WIDTH // 2, HEIGHT // 2, YELLOW, center=True)
     pygame.display.flip()
 
-    mouse_pos = pygame.mouse.get_pos()
-    mouse_click = pygame.mouse.get_pressed()
 
-    # Restart Button
-    restart_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 - 60, 200, 50)
-    pygame.draw.rect(screen, GREEN if restart_rect.collidepoint(mouse_pos) else WHITE, restart_rect, border_radius=8)
-    draw_text("Restart", WIDTH//2 - 50, HEIGHT//2 - 50, BLACK, center=True)
 
-    # Main Menu Button
-    menu_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 10, 200, 50)
-    pygame.draw.rect(screen, ORANGE if menu_rect.collidepoint(mouse_pos) else WHITE, menu_rect, border_radius=8)
-    draw_text("Main Menu", WIDTH//2 - 60, HEIGHT//2 + 20, BLACK, center=True)
-
-    
-
-    # Quit Button
-    quit_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 80, 200, 50)
-    pygame.draw.rect(screen, RED if quit_rect.collidepoint(mouse_pos) else WHITE, quit_rect, border_radius=8)
-    draw_text("Quit", WIDTH//2 - 30, HEIGHT//2 + 90, BLACK, center=True)
-
-    if mouse_click[0]:
-        global game_state
-        if restart_rect.collidepoint(mouse_pos):
-            game_state = PLAYING
-            reset_game()
-        elif menu_rect.collidepoint(mouse_pos):
-            game_state = MENU
-        elif quit_rect.collidepoint(mouse_pos):
-            pygame.quit()
-            sys.exit()
-
-    pygame.display.flip()
 
 def spawn_enemy():
     x = random.choice([0, WIDTH - 30])
@@ -548,17 +522,25 @@ while running:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     game_state = PLAYING
+                    reset_game()    
+                if pygame.time.get_ticks() - loading_start_time > 2000:  # 2秒後切換
                     reset_game()
+  
                 elif event.key == pygame.K_ESCAPE:
                     running = False
+        
     elif game_state == LOADING:
         show_loading_screen()
         menu_music_playing = False  # Stop menu music if it was playing
-                
+        
+        if pygame.time.get_ticks() - loading_start_time > 2000:  # 2 秒後切換
+            game_state = GAME_OVER
+        
+        if pygame.time.get_ticks() - loading_start_time > 2000:  # 2秒後切換
+            reset_game()
+            game_state = PLAYING        
                 # Wait for 1.5 seconds (1500 ms)
-        if pygame.time.get_ticks() - loading_start_time > 5000:  # Adjust the time as needed
-                reset_game()
-                game_state = PLAYING
+        
 
     elif game_state == PLAYING:
 
@@ -628,6 +610,11 @@ while running:
         if keys[pygame.K_d]:
             dx = 1
             facing = "right"
+        if (dx != 0 or dy != 0):
+            if not walk_channel.get_busy():
+                walk_channel.play(walk_sound, loops=-1)
+        else:
+            walk_channel.stop()
 
         if dx != 0 or dy != 0:
             player_direction = (dx, dy)
