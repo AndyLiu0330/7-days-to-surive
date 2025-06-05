@@ -381,17 +381,115 @@ def show_menu():
     pygame.display.flip()
 
 def show_game_over():
-    screen.fill((135, 206, 235) if is_daytime else (20, 20, 50))
-    if has_won:
-        draw_text("You Survived 7 Days! You Win!", WIDTH//2 - 200, HEIGHT//2 - 120, YELLOW, center=False)
-    else:
-        draw_text("Game Over!", WIDTH//2 - 100, HEIGHT//2 - 120, RED, center=False)
+    # Dark translucent overlay
+    overlay = pygame.Surface((WIDTH, HEIGHT))
+    overlay.set_alpha(180)
+    overlay.fill(BLACK)
+    screen.blit(overlay, (0, 0))
+
+    # Title text
+    title_text = "You Survived 7 Days! You Win!" if has_won else "Game Over!"
+    title_color = YELLOW if has_won else RED
+    draw_text(title_text, WIDTH // 2, HEIGHT // 2 - 100, title_color, center=True)
+
+    # Button setup
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_click = pygame.mouse.get_pressed()
+
+    # Restart
+    restart_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 - 30, 200, 50)
+    restart_color = GREEN if restart_rect.collidepoint(mouse_pos) else WHITE
+    pygame.draw.rect(screen, restart_color, restart_rect, border_radius=8)
+    draw_text("Restart", WIDTH//2, HEIGHT//2 - 20, BLACK, center=True)
+
+    # Main Menu
+    menu_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 40, 200, 50)
+    menu_color = ORANGE if menu_rect.collidepoint(mouse_pos) else WHITE
+    pygame.draw.rect(screen, menu_color, menu_rect, border_radius=8)
+    draw_text("Main Menu", WIDTH//2, HEIGHT//2 + 50, BLACK, center=True)
+
+    # Quit
+    quit_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 110, 200, 50)
+    quit_color = RED if quit_rect.collidepoint(mouse_pos) else WHITE
+    pygame.draw.rect(screen, quit_color, quit_rect, border_radius=8)
+    draw_text("Quit", WIDTH//2, HEIGHT//2 + 120, BLACK, center=True)
+
+    # Button click handling
+    if mouse_click[0]:
+        global game_state
+        if restart_rect.collidepoint(mouse_pos):
+            click_sound.play()
+            game_state = PLAYING
+            
+            reset_game()
+        elif menu_rect.collidepoint(mouse_pos):
+            click_sound.play()
+            game_state = MENU
+        elif quit_rect.collidepoint(mouse_pos):
+            click_sound.play()
+            pygame.quit()
+            sys.exit()
+
 
 def show_loading_screen():
     screen.fill(BLACK)
     draw_text("Loading...", WIDTH // 2, HEIGHT // 2, YELLOW, center=True)
     pygame.display.flip()
 
+def show_game_win():
+    # Dimmed golden spring background
+    win_bg = season_backgrounds["spring"].copy()
+    golden_overlay = pygame.Surface((WIDTH, HEIGHT))
+    golden_overlay.fill((255, 215, 0))  # gold tint
+    golden_overlay.set_alpha(40)
+    win_bg.blit(golden_overlay, (0, 0))
+    screen.blit(win_bg, (0, 0))
+
+    # Animated petals
+    for petal in petals:
+        petal.update()
+        petal.draw(screen)
+
+    # Victory title
+    draw_text("You Survived All 7 Days!", WIDTH // 2, HEIGHT // 2 - 120, YELLOW, center=True)
+    draw_text("You mastered the wild.", WIDTH // 2, HEIGHT // 2 - 70, WHITE, center=True)
+
+    # Player victory pose
+    screen.blit(player_images["up"], (WIDTH // 2 - 20, HEIGHT // 2 - 40))
+
+    # Buttons
+    mouse_pos = pygame.mouse.get_pos()
+    mouse_click = pygame.mouse.get_pressed()
+
+    play_again_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 20, 200, 50)
+    menu_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 90, 200, 50)
+    quit_rect = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 160, 200, 50)
+
+    pygame.draw.rect(screen, GREEN if play_again_rect.collidepoint(mouse_pos) else WHITE, play_again_rect, border_radius=8)
+    draw_text("Play Again", WIDTH // 2, HEIGHT // 2 + 30, BLACK, center=True)
+
+    pygame.draw.rect(screen, ORANGE if menu_rect.collidepoint(mouse_pos) else WHITE, menu_rect, border_radius=8)
+    draw_text("Main Menu", WIDTH // 2, HEIGHT // 2 + 100, BLACK, center=True)
+
+    pygame.draw.rect(screen, GRAY if quit_rect.collidepoint(mouse_pos) else WHITE, quit_rect, border_radius=8)
+    draw_text("Quit", WIDTH // 2, HEIGHT // 2 + 170, BLACK, center=True)
+
+    # Handle clicks
+    if mouse_click[0]:
+        global game_state
+        if play_again_rect.collidepoint(mouse_pos):
+            click_sound.play()
+            game_state = PLAYING
+            reset_game()
+        elif menu_rect.collidepoint(mouse_pos):
+            click_sound.play()
+            game_state = MENU
+        elif quit_rect.collidepoint(mouse_pos):
+            click_sound.play()
+            pygame.quit()
+            sys.exit()
+
+    pygame.display.flip()
 
 
 
@@ -513,7 +611,11 @@ while running:
                     game_state = MENU
 
     elif game_state == GAME_OVER:
-        show_game_over()
+        if has_won:
+            show_game_win()
+        else:
+            show_game_over()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -528,6 +630,7 @@ while running:
   
                 elif event.key == pygame.K_ESCAPE:
                     running = False
+        pygame.display.flip()
         
     elif game_state == LOADING:
         show_loading_screen()
